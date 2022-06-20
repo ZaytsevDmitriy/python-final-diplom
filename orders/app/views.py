@@ -12,6 +12,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from ujson import loads as load_json
 from yaml import load as load_yaml, Loader
 
@@ -19,7 +20,10 @@ from .models import Shop, Category, Product, ProductInfo, Parameter, ProductPara
     Contact, ConfirmEmailToken
 from .serializers import UserSerializer, CategorySerializer, ShopSerializer, ProductInfoSerializer, \
     OrderItemSerializer, OrderSerializer, ContactSerializer
-from .signals import new_user_registered, new_order
+from .tasks import new_user_registered_task, new_order_task
+
+
+# from .signals import new_user_registered, new_order
 
 
 class RegisterAccount(APIView):
@@ -54,7 +58,7 @@ class RegisterAccount(APIView):
                     user = user_serializer.save()
                     user.set_password(request.data['password'])
                     user.save()
-                    new_user_registered.send(sender=self.__class__, user_id=user.id)
+                    new_user_registered_task.delay(user_id=user.id)
                     return JsonResponse({'Status': True})
                 else:
                     return JsonResponse({'Status': False, 'Errors': user_serializer.errors})
@@ -150,7 +154,7 @@ class LoginAccount(APIView):
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
 
 
-class CategoryView(ListAPIView):
+class CategoryView(ModelViewSet):
     """
     Класс для просмотра категорий
     """
@@ -158,7 +162,7 @@ class CategoryView(ListAPIView):
     serializer_class = CategorySerializer
 
 
-class ShopView(ListAPIView):
+class ShopView(ModelViewSet):
     """
     Класс для просмотра списка магазинов
     """
@@ -192,6 +196,7 @@ class ProductInfoView(APIView):
         serializer = ProductInfoSerializer(queryset, many=True)
 
         return Response(serializer.data)
+
 
 
 class BasketView(APIView):
@@ -503,7 +508,7 @@ class OrderView(APIView):
                     return JsonResponse({'Status': False, 'Errors': 'Неправильно указаны аргументы'})
                 else:
                     if is_updated:
-                        new_order.send(sender=self.__class__, user_id=request.user.id)
+                        new_order_task.delay(user_id=request.user.id)
                         return JsonResponse({'Status': True})
 
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})

@@ -1,12 +1,19 @@
-from django.urls import path
+from django.urls import path, include
 from django_rest_passwordreset.views import reset_password_request_token, reset_password_confirm
+from rest_framework.routers import DefaultRouter
 
-from .views import PartnerUpdate, RegisterAccount, LoginAccount, CategoryView, ShopView, ProductInfoView, \
+from .views import PartnerUpdate, RegisterAccount, LoginAccount, CategoryView, ShopView, \
     BasketView, \
-    AccountDetails, ContactView, OrderView, PartnerState, PartnerOrders, ConfirmAccount
+    AccountDetails, ContactView, OrderView, PartnerState, PartnerOrders, ConfirmAccount, ProductInfoView
+
+router = DefaultRouter()
+router.register(r'categories', CategoryView, basename="categories")
+router.register(r'shops', ShopView, basename="shops")
+# router.register(r'products', ProductInfoView, basename="products")
 
 app_name = 'app'
 urlpatterns = [
+    path('', include(router.urls)),
     path('partner/update', PartnerUpdate.as_view(), name='partner-update'),
     path('partner/state', PartnerState.as_view(), name='partner-state'),
     path('partner/orders', PartnerOrders.as_view(), name='partner-orders'),
@@ -17,8 +24,8 @@ urlpatterns = [
     path('user/login', LoginAccount.as_view(), name='user-login'),
     path('user/password_reset', reset_password_request_token, name='password-reset'),
     path('user/password_reset/confirm', reset_password_confirm, name='password-reset-confirm'),
-    path('categories', CategoryView.as_view(), name='categories'),
-    path('shops', ShopView.as_view(), name='shops'),
+    # path('categories', CategoryView.as_view(), name='categories'),
+    # path('shops', ShopView.as_view(), name='shops'),
     path('products', ProductInfoView.as_view(), name='shops'),
     path('basket', BasketView.as_view(), name='basket'),
     path('order', OrderView.as_view(), name='order'),

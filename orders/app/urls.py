@@ -9,7 +9,7 @@ from .views import PartnerUpdate, RegisterAccount, LoginAccount, CategoryView, S
 router = DefaultRouter()
 router.register(r'categories', CategoryView, basename="categories")
 router.register(r'shops', ShopView, basename="shops")
-# router.register(r'products', ProductInfoView, basename="products")
+
 
 app_name = 'app'
 urlpatterns = [
@@ -24,10 +24,10 @@ urlpatterns = [
     path('user/login', LoginAccount.as_view(), name='user-login'),
     path('user/password_reset', reset_password_request_token, name='password-reset'),
     path('user/password_reset/confirm', reset_password_confirm, name='password-reset-confirm'),
-    # path('categories', CategoryView.as_view(), name='categories'),
-    # path('shops', ShopView.as_view(), name='shops'),
     path('products', ProductInfoView.as_view(), name='shops'),
     path('basket', BasketView.as_view(), name='basket'),
     path('order', OrderView.as_view(), name='order'),
+    path('', include('social_django.urls')
+         )
 
 ]

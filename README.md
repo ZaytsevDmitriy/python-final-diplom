@@ -54,4 +54,9 @@ python manage.py runserver
 ```
 * Приложение будет доступно локально по адресу: http://127.0.0.1:8000/
 
-* Для тестирования приложения использовать Postman https://www.getpostman.com/collections/14c30b1f4e9bd7001660
+### Для тестирования приложения необходимо
+* Использовать Postman https://www.getpostman.com
+* Нажать на кнопку “Import” в левом верхнем углу
+* Выбрать вкладку “Import file”
+* Нажать на кнопку “Choose file” 
+* Выбрать файл netology-pd-diplom.postman_collection.json

@@ -9,10 +9,10 @@ from django.db.models import Q, Sum, F
 from django.http import JsonResponse
 from requests import get
 from rest_framework.authtoken.models import Token
-from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
+from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from rest_framework.viewsets import ModelViewSet
 from ujson import loads as load_json
 from yaml import load as load_yaml, Loader
 
@@ -30,6 +30,7 @@ class RegisterAccount(APIView):
     """
     Для регистрации покупателей
     """
+    throttle_classes = (AnonRateThrottle,)
 
     # Регистрация методом POST
     def post(self, request, *args, **kwargs):
@@ -71,6 +72,8 @@ class ConfirmAccount(APIView):
     Класс для подтверждения почтового адреса
     """
 
+    throttle_classes = (AnonRateThrottle,)
+
     # Регистрация методом POST
     def post(self, request, *args, **kwargs):
 
@@ -94,6 +97,8 @@ class AccountDetails(APIView):
     """
     Класс для работы данными пользователя
     """
+
+    throttle_classes = (UserRateThrottle,)
 
     # получить данные
     def get(self, request, *args, **kwargs):
@@ -137,6 +142,8 @@ class LoginAccount(APIView):
     Класс для авторизации пользователей
     """
 
+    throttle_classes = (AnonRateThrottle,)
+
     # Авторизация методом POST
     def post(self, request, *args, **kwargs):
 
@@ -166,6 +173,9 @@ class ShopView(ModelViewSet):
     """
     Класс для просмотра списка магазинов
     """
+
+    throttle_classes = (AnonRateThrottle,)
+
     queryset = Shop.objects.filter(state=True)
     serializer_class = ShopSerializer
 
@@ -174,6 +184,8 @@ class ProductInfoView(APIView):
     """
     Класс для поиска товаров
     """
+
+    throttle_classes = (AnonRateThrottle,)
 
     def get(self, request, *args, **kwargs):
 
@@ -198,11 +210,12 @@ class ProductInfoView(APIView):
         return Response(serializer.data)
 
 
-
 class BasketView(APIView):
     """
     Класс для работы с корзиной пользователя
     """
+
+    throttle_classes = (UserRateThrottle,)
 
     # получить корзину
     def get(self, request, *args, **kwargs):
@@ -298,6 +311,8 @@ class PartnerUpdate(APIView):
     Класс для обновления прайса от поставщика
     """
 
+    throttle_classes = (UserRateThrottle,)
+
     def post(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
@@ -348,6 +363,7 @@ class PartnerState(APIView):
     """
     Класс для работы со статусом поставщика
     """
+    throttle_classes = (UserRateThrottle,)
 
     # получить текущий статус
     def get(self, request, *args, **kwargs):
@@ -384,6 +400,8 @@ class PartnerOrders(APIView):
     Класс для получения заказов поставщиками
     """
 
+    throttle_classes = (UserRateThrottle,)
+
     def get(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
@@ -405,6 +423,8 @@ class ContactView(APIView):
     """
     Класс для работы с контактами покупателей
     """
+
+    throttle_classes = (UserRateThrottle,)
 
     # получить мои контакты
     def get(self, request, *args, **kwargs):
@@ -477,6 +497,8 @@ class OrderView(APIView):
     """
     Класс для получения и размешения заказов пользователями
     """
+
+    throttle_classes = (UserRateThrottle,)
 
     # получить мои заказы
     def get(self, request, *args, **kwargs):
